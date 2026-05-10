@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EU AI Act Risk Classifier</title>
+<style>
+:root {
+  --bg: #fafafa;
+  --fg: #1a1a1a;
+  --muted: #555;
+  --border: #d4d4d4;
+  --card: #fff;
+  --primary: #003399;
+  --accent: #ffcc00;
+  --unacceptable: #b91c1c;
+  --high: #ea580c;
+  --limited: #ca8a04;
+  --minimal: #16a34a;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  margin: 0;
+  padding: 2rem 1rem 4rem;
+  line-height: 1.5;
+}
+.container { max-width: 760px; margin: 0 auto; }
+header h1 { color: var(--primary); margin: 0 0 .25rem; font-size: 1.75rem; }
+header p { color: var(--muted); margin: 0 0 1.25rem; }
+header a { color: var(--primary); }
+.disclaimer {
+  background: #fff8dc;
+  border: 1px solid var(--accent);
+  padding: .75rem 1rem;
+  border-radius: 6px;
+  font-size: .85rem;
+  margin-bottom: 1.5rem;
+  color: #4a3a00;
+}
+form {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+fieldset { border: 0; padding: 0; margin: 0 0 1.25rem; }
+legend { font-weight: 600; padding: 0; margin-bottom: .35rem; font-size: .98rem; }
+.hint { font-size: .85rem; color: var(--muted); margin: 0 0 .5rem; }
+select {
+  width: 100%;
+  padding: .6rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+  font-size: .95rem;
+}
+button {
+  margin-top: .5rem;
+  background: var(--primary);
+  color: #fff;
+  border: 0;
+  padding: .75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+}
+button:hover { background: #002277; }
+#result { margin-top: 2rem; }
+#result[hidden] { display: none; }
+.risk-banner {
+  text-align: center;
+  padding: 2.25rem 1rem;
+  border-radius: 8px;
+  color: #fff;
+  margin-bottom: 1rem;
+}
+.risk-banner .label {
+  font-size: .85rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  opacity: .9;
+}
+.risk-banner .tier {
+  font-size: 2.75rem;
+  font-weight: 800;
+  line-height: 1.05;
+  margin: .5rem 0 0;
+  letter-spacing: -.02em;
+}
+.risk-banner[data-tier="unacceptable"] { background: var(--unacceptable); }
+.risk-banner[data-tier="high"]         { background: var(--high); }
+.risk-banner[data-tier="limited"]      { background: var(--limited); }
+.risk-banner[data-tier="minimal"]      { background: var(--minimal); }
+details {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: .75rem;
+  padding: 1rem 1.25rem;
+}
+details > summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.05rem;
+  list-style: none;
+}
+details > summary::-webkit-details-marker { display: none; }
+details > summary::after { content: " ▸"; color: var(--muted); }
+details[open] > summary::after { content: " ▾"; }
+details > div { margin-top: 1rem; }
+.verbatim {
+  font-family: Georgia, "Times New Roman", serif;
+  background: #f4f4f0;
+  border-left: 4px solid var(--primary);
+  padding: 1rem 1.25rem;
+  font-style: italic;
+  margin: .5rem 0;
+  white-space: pre-wrap;
+}
+.verbatim cite {
+  display: block;
+  margin-top: .75rem;
+  font-size: .85rem;
+  color: var(--muted);
+  font-style: normal;
+}
+.what-now h3 { margin: 1rem 0 .25rem; font-size: 1rem; }
+.what-now ul { margin: .25rem 0 .75rem 1.25rem; padding: 0; }
+.what-now li { margin-bottom: .3rem; }
+.bv {
+  margin-top: 1.25rem;
+  padding: 1rem 1.1rem;
+  background: #fef3c7;
+  border-left: 4px solid var(--accent);
+  border-radius: 4px;
+}
+.bv strong { color: var(--primary); }
+.gpai-note {
+  margin-top: 1rem;
+  padding: .9rem 1.1rem;
+  background: #eef2ff;
+  border-left: 4px solid #4338ca;
+  border-radius: 4px;
+  font-size: .95rem;
+}
+.gpai-note details { background: transparent; border: 0; padding: 0; margin-top: .5rem; }
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: .85rem;
+  margin-top: 2.5rem;
+}
+footer a { color: var(--primary); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>EU AI Act Risk Classifier</h1>
+  <p>Answer the questions below to estimate where your AI system sits under
+     <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202401689" target="_blank" rel="noopener">Regulation (EU) 2024/1689</a> &mdash; the EU AI Act.</p>
+</header>
+
+<div class="disclaimer">
+  Preliminary indication only. Not legal advice. Borderline cases &mdash; and final regulatory decisions &mdash; require human review against the full text of the Act.
+</div>
+
+<form id="classifier">
+  <fieldset>
+    <legend>1. Does the system engage in any prohibited practice listed in Article 5?</legend>
+    <p class="hint">Pick the closest match, or "None of these".</p>
+    <select id="q1">
+      <option value="none">None of these</option>
+      <option value="5a">(a) Subliminal, manipulative or deceptive techniques causing significant harm</option>
+      <option value="5b">(b) Exploitation of vulnerabilities (age, disability, social or economic situation)</option>
+      <option value="5c">(c) Social scoring leading to detrimental treatment</option>
+      <option value="5d">(d) Predicting criminal offending solely from profiling or personality</option>
+      <option value="5e">(e) Untargeted scraping of facial images for face-recognition databases</option>
+      <option value="5f">(f) Emotion recognition in workplaces or education institutions</option>
+      <option value="5g">(g) Biometric categorisation inferring sensitive attributes (race, beliefs, etc.)</option>
+      <option value="5h">(h) Real-time remote biometric identification in public spaces by law enforcement</option>
+    </select>
+  </fieldset>
+
+  <fieldset>
+    <legend>2. Is the system high-risk &mdash; Annex III, or a safety component under Article 6(1)?</legend>
+    <p class="hint">Annex III lists eight high-risk areas. Pick the closest, or "None".</p>
+    <select id="q2">
+      <option value="none">None of these</option>
+      <option value="6_1">Safety component of a regulated product (Annex I) requiring third-party conformity assessment &mdash; Article 6(1)</option>
+      <option value="annex3_1">Annex III §1 &mdash; Biometrics (remote ID, categorisation, emotion recognition)</option>
+      <option value="annex3_2">Annex III §2 &mdash; Critical infrastructure (digital, traffic, water, gas, heating, electricity)</option>
+      <option value="annex3_3">Annex III §3 &mdash; Education and vocational training</option>
+      <option value="annex3_4">Annex III §4 &mdash; Employment, workers management, access to self-employment</option>
+      <option value="annex3_5">Annex III §5 &mdash; Access to essential private/public services and benefits</option>
+      <option value="annex3_6">Annex III §6 &mdash; Law enforcement</option>
+      <option value="annex3_7">Annex III §7 &mdash; Migration, asylum, border control</option>
+      <option value="annex3_8">Annex III §8 &mdash; Administration of justice and democratic processes</option>
+    </select>
+  </fieldset>
+
+  <fieldset>
+    <legend>3. Does the system trigger any transparency obligation under Article 50?</legend>
+    <p class="hint">Even if not high-risk, certain systems must inform users.</p>
+    <select id="q3">
+      <option value="none">None of these</option>
+      <option value="50_1">Interacts directly with natural persons (e.g. chatbot, voice assistant)</option>
+      <option value="50_2">Generates synthetic audio, image, video or text content</option>
+      <option value="50_3">Performs emotion recognition or biometric categorisation</option>
+      <option value="50_4">Generates deep fakes, or AI-generated text on matters of public interest</option>
+    </select>
+  </fieldset>
+
+  <fieldset>
+    <legend>4. Is the underlying model a general-purpose AI (GPAI) model?</legend>
+    <p class="hint">GPAI obligations (Chapter V) apply on top of the tier above.</p>
+    <select id="q4">
+      <option value="no">No / not applicable</option>
+      <option value="gpai">Yes &mdash; GPAI model</option>
+      <option value="systemic">Yes &mdash; GPAI model with systemic risk (Article 51)</option>
+    </select>
+  </fieldset>
+
+  <button type="submit">Classify</button>
+</form>
+
+<section id="result" hidden></section>
+
+<footer>
+  <p>Source: <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202401689" target="_blank" rel="noopener">Regulation (EU) 2024/1689 (PDF)</a> · Not legal advice.</p>
+</footer>
+
+</div>
+
+<script>
+const ARTICLE_5_TEXT = {
+  '5a': "(a) the placing on the market, the putting into service or the use of an AI system that deploys subliminal techniques beyond a person's consciousness or purposefully manipulative or deceptive techniques, with the objective, or the effect of materially distorting the behaviour of a person or a group of persons by appreciably impairing their ability to make an informed decision, thereby causing them to take a decision that they would not have otherwise taken in a manner that causes or is reasonably likely to cause that person, another person or group of persons significant harm;",
+  '5b': "(b) the placing on the market, the putting into service or the use of an AI system that exploits any of the vulnerabilities of a natural person or a specific group of persons due to their age, disability or a specific social or economic situation, with the objective, or the effect, of materially distorting the behaviour of that person or a person belonging to that group in a manner that causes or is reasonably likely to cause that person or another person significant harm;",
+  '5c': "(c) the placing on the market, the putting into service or the use of AI systems for the evaluation or classification of natural persons or groups of persons over a certain period of time based on their social behaviour or known, inferred or predicted personal or personality characteristics, with the social score leading to either or both of the following: (i) detrimental or unfavourable treatment of certain natural persons or groups of persons in social contexts that are unrelated to the contexts in which the data was originally generated or collected; (ii) detrimental or unfavourable treatment of certain natural persons or groups of persons that is unjustified or disproportionate to their social behaviour or its gravity;",
+  '5d': "(d) the placing on the market, the putting into service for this specific purpose, or the use of an AI system for making risk assessments of natural persons in order to assess or predict the risk of a natural person committing a criminal offence, based solely on the profiling of a natural person or on assessing their personality traits and characteristics; this prohibition shall not apply to AI systems used to support the human assessment of the involvement of a person in a criminal activity, which is already based on objective and verifiable facts directly linked to a criminal activity;",
+  '5e': "(e) the placing on the market, the putting into service for this specific purpose, or the use of AI systems that create or expand facial recognition databases through the untargeted scraping of facial images from the internet or CCTV footage;",
+  '5f': "(f) the placing on the market, the putting into service for this specific purpose, or the use of AI systems to infer emotions of a natural person in the areas of workplace and education institutions, except where the use of the AI system is intended to be put in place or into the market for medical or safety reasons;",
+  '5g': "(g) the placing on the market, the putting into service for this specific purpose, or the use of biometric categorisation systems that categorise individually natural persons based on their biometric data to deduce or infer their race, political opinions, trade union membership, religious or philosophical beliefs, sex life or sexual orientation; this prohibition does not cover any labelling or filtering of lawfully acquired biometric datasets, such as images, based on biometric data or categorising of biometric data in the area of law enforcement;",
+  '5h': "(h) the use of 'real-time' remote biometric identification systems in publicly accessible spaces for the purposes of law enforcement, unless and in so far as such use is strictly necessary for one of the following objectives: (i) the targeted search for specific victims of abduction, trafficking in human beings or sexual exploitation of human beings, as well as the search for missing persons; (ii) the prevention of a specific, substantial and imminent threat to the life or physical safety of natural persons or a genuine and present or genuine and foreseeable threat of a terrorist attack; (iii) the localisation or identification of a person suspected of having committed a criminal offence, for the purpose of conducting a criminal investigation or prosecution or executing a criminal penalty for offences referred to in Annex II and punishable in the Member State concerned by a custodial sentence or a detention order for a maximum period of at least four years."
+};
+
+const ANNEX_III_TEXT = {
+  '6_1': "Article 6(1): Irrespective of whether an AI system is placed on the market or put into service independently of the products referred to in points (a) and (b), that AI system shall be considered to be high-risk where both of the following conditions are fulfilled: (a) the AI system is intended to be used as a safety component of a product, or the AI system is itself a product, covered by the Union harmonisation legislation listed in Annex I; (b) the product whose safety component pursuant to point (a) is the AI system, or the AI system itself as a product, is required to undergo a third-party conformity assessment, with a view to the placing on the market or the putting into service of that product pursuant to the Union harmonisation legislation listed in Annex I.",
+  'annex3_1': "Annex III §1 — Biometrics, in so far as their use is permitted under relevant Union or national law: (a) remote biometric identification systems (excluding biometric verification confirming a person is who they claim to be); (b) AI systems intended to be used for biometric categorisation, according to sensitive or protected attributes or characteristics based on the inference of those attributes or characteristics; (c) AI systems intended to be used for emotion recognition.",
+  'annex3_2': "Annex III §2 — Critical infrastructure: AI systems intended to be used as safety components in the management and operation of critical digital infrastructure, road traffic, or in the supply of water, gas, heating or electricity.",
+  'annex3_3': "Annex III §3 — Education and vocational training: AI systems intended to be used (a) to determine access, admission or assignment of natural persons to educational and vocational training institutions at all levels; (b) to evaluate learning outcomes, including when those outcomes are used to steer the learning process; (c) to assess the appropriate level of education that an individual will receive or will be able to access; (d) to monitor and detect prohibited behaviour of students during tests.",
+  'annex3_4': "Annex III §4 — Employment, workers management and access to self-employment: AI systems intended to be used (a) for the recruitment or selection of natural persons, in particular to place targeted job advertisements, to analyse and filter job applications, and to evaluate candidates; (b) to make decisions affecting terms of work-related relationships, the promotion or termination of work-related contractual relationships, to allocate tasks based on individual behaviour or personal traits or characteristics, or to monitor and evaluate the performance and behaviour of persons in such relationships.",
+  'annex3_5': "Annex III §5 — Access to and enjoyment of essential private services and essential public services and benefits: AI systems intended to be used (a) by public authorities or on their behalf to evaluate the eligibility of natural persons for essential public assistance benefits and services, as well as to grant, reduce, revoke, or reclaim such benefits and services; (b) to evaluate the creditworthiness of natural persons or establish their credit score, with the exception of AI systems used for the purpose of detecting financial fraud; (c) for risk assessment and pricing in relation to natural persons in the case of life and health insurance; (d) to evaluate and classify emergency calls by natural persons or to be used to dispatch, or to establish priority in the dispatching of, emergency first response services, including by police, firefighters and medical aid, as well as of emergency healthcare patient triage systems.",
+  'annex3_6': "Annex III §6 — Law enforcement, in so far as their use is permitted under relevant Union or national law: AI systems intended to be used by or on behalf of law enforcement authorities, or by Union institutions, bodies, offices or agencies in support of law enforcement authorities (a) to assess the risk of a natural person becoming the victim of criminal offences; (b) as polygraphs or similar tools; (c) to evaluate the reliability of evidence in the course of the investigation or prosecution of criminal offences; (d) for assessing the risk of a natural person offending or re-offending not solely on the basis of profiling or assessing personality traits and characteristics or past criminal behaviour; (e) for profiling of natural persons in the course of detection, investigation or prosecution of criminal offences.",
+  'annex3_7': "Annex III §7 — Migration, asylum and border control management, in so far as their use is permitted under relevant Union or national law: AI systems intended to be used (a) as polygraphs or similar tools; (b) to assess a risk, including a security risk, a risk of irregular migration, or a health risk, posed by a natural person who intends to enter or who has entered the territory of a Member State; (c) to assist competent public authorities for the examination of applications for asylum, visa or residence permits and for associated complaints with regard to the eligibility of the natural persons applying for a status; (d) for the purpose of detecting, recognising or identifying natural persons, with the exception of the verification of travel documents.",
+  'annex3_8': "Annex III §8 — Administration of justice and democratic processes: (a) AI systems intended to be used by a judicial authority or on their behalf to assist a judicial authority in researching and interpreting facts and the law and in applying the law to a concrete set of facts, or to be used in a similar way in alternative dispute resolution; (b) AI systems intended to be used for influencing the outcome of an election or referendum or the voting behaviour of natural persons in the exercise of their vote in elections or referenda. This does not include AI systems to whose output natural persons are not directly exposed, such as tools used to organise, optimise or structure political campaigns from an administrative or logistical point of view."
+};
+
+const ARTICLE_50_TEXT = {
+  '50_1': "Article 50(1): Providers shall ensure that AI systems intended to interact directly with natural persons are designed and developed in such a way that the natural persons concerned are informed that they are interacting with an AI system, unless this is obvious from the point of view of a natural person who is reasonably well-informed, observant and circumspect, taking into account the circumstances and the context of use. This obligation shall not apply to AI systems authorised by law to detect, prevent, investigate or prosecute criminal offences, subject to appropriate safeguards for the rights and freedoms of third parties, unless those systems are available for the public to report a criminal offence.",
+  '50_2': "Article 50(2): Providers of AI systems, including general-purpose AI systems, generating synthetic audio, image, video or text content, shall ensure that the outputs of the AI system are marked in a machine-readable format and detectable as artificially generated or manipulated. Providers shall ensure their technical solutions are effective, interoperable, robust and reliable as far as this is technically feasible, taking into account the specificities and limitations of various types of content, the costs of implementation and the generally acknowledged state of the art, as may be reflected in relevant technical standards.",
+  '50_3': "Article 50(3): Deployers of an emotion recognition system or a biometric categorisation system shall inform the natural persons exposed thereto of the operation of the system, and shall process the personal data in accordance with Regulations (EU) 2016/679 and (EU) 2018/1725 and Directive (EU) 2016/680, as applicable. This obligation shall not apply to AI systems used for biometric categorisation and emotion recognition, which are permitted by law to detect, prevent or investigate criminal offences, subject to appropriate safeguards for the rights and freedoms of third parties, and in accordance with Union law.",
+  '50_4': "Article 50(4): Deployers of an AI system that generates or manipulates image, audio or video content constituting a deep fake, shall disclose that the content has been artificially generated or manipulated. ... Deployers of an AI system that generates or manipulates text which is published with the purpose of informing the public on matters of public interest shall disclose that the text has been artificially generated or manipulated. This obligation shall not apply where the use is authorised by law to detect, prevent, investigate or prosecute criminal offence or where the AI-generated content has undergone a process of human review or editorial control and where a natural or legal person holds editorial responsibility for the publication of the content."
+};
+
+const GPAI_TEXT = {
+  gpai: "Article 53(1): Providers of general-purpose AI models shall: (a) draw up and keep up-to-date the technical documentation of the model, including its training and testing process and the results of its evaluation, which shall contain, at a minimum, the information set out in Annex XI; (b) draw up, keep up-to-date and make available information and documentation to providers of AI systems who intend to integrate the general-purpose AI model into their AI systems; (c) put in place a policy to comply with Union law on copyright and related rights, and in particular to identify and comply with, including through state-of-the-art technologies, a reservation of rights expressed pursuant to Article 4(3) of Directive (EU) 2019/790; (d) draw up and make publicly available a sufficiently detailed summary about the content used for training of the general-purpose AI model, according to a template provided by the AI Office.",
+  systemic: "Article 55(1): Providers of general-purpose AI models with systemic risk shall: (a) perform model evaluation in accordance with standardised protocols and tools reflecting the state of the art, including conducting and documenting adversarial testing of the model with a view to identifying and mitigating systemic risks; (b) assess and mitigate possible systemic risks at Union level, including their sources, that may stem from the development, the placing on the market, or the use of general-purpose AI models with systemic risk; (c) keep track of, document, and report, without undue delay, to the AI Office and, as appropriate, to national competent authorities, relevant information about serious incidents and possible corrective measures to address them; (d) ensure an adequate level of cybersecurity protection for the general-purpose AI model with systemic risk and the physical infrastructure of the model."
+};
+
+const TIER_CONTENT = {
+  unacceptable: {
+    headline: "Unacceptable risk — prohibited",
+    implications: [
+      "The system cannot be placed on the EU market, put into service, or used.",
+      "Penalties up to €35 000 000 or 7% of total worldwide annual turnover, whichever is higher (Article 99(3)).",
+      "Applies from 2 February 2025 (Article 113(a))."
+    ],
+    actions: [
+      "Stop deployment in the EU and any pipeline targeting EU users.",
+      "Re-examine the design — can the prohibited functionality be removed or replaced?",
+      "If you believe an exception applies (e.g. medical or safety use under Art. 5(1)(f), or law-enforcement carve-outs in Art. 5(1)(h)), document the legal basis carefully.",
+      "Notify your Data Protection Officer and legal counsel."
+    ]
+  },
+  high: {
+    headline: "High risk",
+    implications: [
+      "Subject to Chapter III obligations: risk-management system (Art. 9), data governance (Art. 10), technical documentation (Art. 11), record-keeping (Art. 12), transparency to deployers (Art. 13), human oversight (Art. 14), accuracy/robustness/cybersecurity (Art. 15).",
+      "Conformity assessment, CE marking and EU declaration of conformity required before placing on the market (Arts. 43, 47, 48).",
+      "Registration in the EU database for high-risk AI systems (Arts. 49 / 71).",
+      "Post-market monitoring and serious-incident reporting (Arts. 72, 73).",
+      "Penalties up to €15 000 000 or 3% of worldwide annual turnover (Article 99(4)).",
+      "Most obligations apply from 2 August 2026; Annex I safety-component systems from 2 August 2027."
+    ],
+    actions: [
+      "Establish a quality management system (Art. 17).",
+      "Build the technical documentation set in Annex IV.",
+      "Plan the conformity assessment route (internal control vs. notified body) under Art. 43.",
+      "Set up logging, human-oversight measures and post-market monitoring before launch.",
+      "Register the system in the EU database (Art. 49)."
+    ]
+  },
+  limited: {
+    headline: "Limited risk — transparency",
+    implications: [
+      "The system itself is not high-risk, but Article 50 transparency obligations apply.",
+      "Users must be informed they are interacting with an AI system, or that content is AI-generated or manipulated, as relevant.",
+      "Synthetic outputs must be machine-readably marked (Art. 50(2)).",
+      "Article 50 applies from 2 August 2026."
+    ],
+    actions: [
+      'Add clear "you are interacting with AI" notices in the user flow.',
+      "Implement watermarking or C2PA-style provenance signals on generated media.",
+      "Document the disclosures in the technical documentation and user interface.",
+      "Track guidance and codes of practice from the AI Office on Article 50 implementation."
+    ]
+  },
+  minimal: {
+    headline: "Minimal risk",
+    implications: [
+      "No mandatory obligations under the AI Act for the system itself.",
+      "Voluntary codes of conduct are encouraged (Article 95).",
+      "GDPR, sectoral law, and Article 50 may still apply if the system later changes scope."
+    ],
+    actions: [
+      "Document why the system does not fall into a higher tier — keep this on file.",
+      "Re-classify if features change (e.g. a new biometric or generative capability).",
+      "Consider voluntary alignment with the high-risk requirements as good practice."
+    ]
+  }
+};
+
+const BV_BLURB = '<div class="bv"><strong>Need to be ready to comply?</strong> ' +
+  '<a href="https://www.bureauveritas.com/" target="_blank" rel="noopener">Bureau Veritas</a> ' +
+  "provides AI Act readiness assessment, gap analysis and conformity assessment services. " +
+  "Engaging early helps de-risk the launch timeline.</div>";
+
+function classify(q1, q2, q3, q4) {
+  const reasons = [];
+  let tier;
+
+  if (q1 !== "none") {
+    tier = "unacceptable";
+    reasons.push({
+      source: "Article 5(1)(" + q1.slice(1) + ") — Prohibited AI practices",
+      text: ARTICLE_5_TEXT[q1]
+    });
+  } else if (q2 !== "none") {
+    tier = "high";
+    reasons.push({
+      source: q2 === "6_1" ? "Article 6(1) — High-risk AI systems"
+                            : "Annex III — High-risk AI systems",
+      text: ANNEX_III_TEXT[q2]
+    });
+  } else if (q3 !== "none") {
+    tier = "limited";
+    reasons.push({
+      source: "Article 50 — Transparency obligations",
+      text: ARTICLE_50_TEXT[q3]
+    });
+  } else {
+    tier = "minimal";
+    reasons.push({
+      source: "Article 95 — Codes of conduct (minimal-risk)",
+      text: "The Regulation does not impose mandatory obligations on AI systems that do not fall within the prohibited, high-risk or transparency categories. The AI Office and the Member States shall encourage and facilitate the drawing up of codes of conduct (Article 95) intended to foster the voluntary application of requirements set out for high-risk AI systems."
+    });
+  }
+
+  let gpaiNote = "";
+  if (q4 === "gpai") {
+    gpaiNote =
+      '<div class="gpai-note"><strong>Plus:</strong> The underlying GPAI model triggers Chapter V obligations (Article 53). These apply <em>in addition</em> to the tier above.' +
+      "<details><summary>View Article 53(1) verbatim</summary>" +
+      '<div class="verbatim">' + GPAI_TEXT.gpai +
+      "<cite>— Regulation (EU) 2024/1689, Article 53(1)</cite></div></details></div>";
+  } else if (q4 === "systemic") {
+    gpaiNote =
+      '<div class="gpai-note"><strong>Plus:</strong> A GPAI model with systemic risk (Article 51) triggers the additional obligations of Article 55 — model evaluation, systemic-risk mitigation, incident reporting and cybersecurity — on top of Article 53 and the tier above.' +
+      "<details><summary>View Article 55(1) verbatim</summary>" +
+      '<div class="verbatim">' + GPAI_TEXT.systemic +
+      "<cite>— Regulation (EU) 2024/1689, Article 55(1)</cite></div></details></div>";
+  }
+
+  return { tier, reasons, gpaiNote };
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function render(result) {
+  const c = TIER_CONTENT[result.tier];
+  const reasonsHtml = result.reasons.map(function (r) {
+    return '<div class="verbatim">' + escapeHtml(r.text) +
+           '<cite>— Regulation (EU) 2024/1689, ' + escapeHtml(r.source) + '</cite></div>';
+  }).join("");
+
+  return (
+    '<div class="risk-banner" data-tier="' + result.tier + '">' +
+      '<div class="label">Estimated EU AI Act risk level</div>' +
+      '<div class="tier">' + c.headline.toUpperCase() + '</div>' +
+    '</div>' +
+
+    '<details open><summary>Why?</summary><div>' +
+      '<p>The classification is based on the following provision(s) of the Act:</p>' +
+      reasonsHtml +
+    '</div></details>' +
+
+    '<details><summary>What now?</summary><div class="what-now">' +
+      '<h3>Potential implications</h3>' +
+      '<ul>' + c.implications.map(function (i) { return '<li>' + i + '</li>'; }).join("") + '</ul>' +
+      '<h3>Actions to take</h3>' +
+      '<ul>' + c.actions.map(function (a) { return '<li>' + a + '</li>'; }).join("") + '</ul>' +
+      BV_BLURB +
+    '</div></details>' +
+
+    result.gpaiNote
+  );
+}
+
+document.getElementById("classifier").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const q1 = document.getElementById("q1").value;
+  const q2 = document.getElementById("q2").value;
+  const q3 = document.getElementById("q3").value;
+  const q4 = document.getElementById("q4").value;
+
+  const out = document.getElementById("result");
+  out.innerHTML = render(classify(q1, q2, q3, q4));
+  out.hidden = false;
+  out.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+</script>
+</body>
+</html>
