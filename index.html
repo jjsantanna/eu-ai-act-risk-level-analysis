@@ -3,42 +3,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EU AI Act Risk Classifier</title>
+<title>EU AI Act Risk Classifier &mdash; Bureau Veritas Cybersecurity</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='10' fill='%23ED1C24'/><text x='32' y='44' text-anchor='middle' font-family='Arial,Helvetica,sans-serif' font-weight='900' font-size='30' fill='white' letter-spacing='-1'>BV</text></svg>">
 <style>
 :root {
-  --bg: #fafafa;
-  --fg: #1a1a1a;
-  --muted: #555;
-  --border: #d4d4d4;
-  --card: #fff;
-  --primary: #003399;
-  --accent: #ffcc00;
-  --unacceptable: #b91c1c;
-  --high: #ea580c;
-  --limited: #ca8a04;
-  --minimal: #16a34a;
+  --bg: #f4f4f4;
+  --fg: #151616;
+  --muted: #6f6f6f;
+  --border: #e0e0e0;
+  --card: #ffffff;
+  --primary: #ed1c24;
+  --primary-dark: #b81720;
+  --accent: #ed1c24;
+  --unacceptable: #b81720;
+  --high: #c2410c;
+  --limited: #a16207;
+  --minimal: #15803d;
 }
 * { box-sizing: border-box; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
   background: var(--bg);
   color: var(--fg);
   margin: 0;
-  padding: 2rem 1rem 4rem;
+  padding: 0 1rem 4rem;
   line-height: 1.5;
+}
+.brandbar {
+  height: 4px;
+  background: var(--primary);
+  margin: 0 -1rem 2rem;
 }
 .container { max-width: 760px; margin: 0 auto; }
 header h1 { color: var(--primary); margin: 0 0 .25rem; font-size: 1.75rem; }
 header p { color: var(--muted); margin: 0 0 1.25rem; }
 header a { color: var(--primary); }
 .disclaimer {
-  background: #fff8dc;
-  border: 1px solid var(--accent);
+  background: #fdf2f2;
+  border-left: 4px solid var(--primary);
   padding: .75rem 1rem;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: .85rem;
   margin-bottom: 1.5rem;
-  color: #4a3a00;
+  color: #5a1a1d;
 }
 form {
   background: var(--card);
@@ -68,7 +75,7 @@ button {
   border-radius: 6px;
   cursor: pointer;
 }
-button:hover { background: #002277; }
+button:hover { background: var(--primary-dark); }
 #result { margin-top: 2rem; }
 #result[hidden] { display: none; }
 .risk-banner {
@@ -133,17 +140,18 @@ details > div { margin-top: 1rem; }
 .what-now li { margin-bottom: .3rem; }
 .bv {
   margin-top: 1.25rem;
-  padding: 1rem 1.1rem;
-  background: #fef3c7;
-  border-left: 4px solid var(--accent);
+  padding: 1.25rem;
+  background: var(--primary);
+  color: #fff;
   border-radius: 4px;
 }
-.bv strong { color: var(--primary); }
+.bv strong { color: #fff; font-weight: 800; letter-spacing: .02em; }
+.bv a { color: #fff; text-decoration: underline; font-weight: 700; }
 .gpai-note {
   margin-top: 1rem;
   padding: .9rem 1.1rem;
-  background: #eef2ff;
-  border-left: 4px solid #4338ca;
+  background: #f5f5f5;
+  border-left: 4px solid var(--fg);
   border-radius: 4px;
   font-size: .95rem;
 }
@@ -158,6 +166,7 @@ footer a { color: var(--primary); }
 </style>
 </head>
 <body>
+<div class="brandbar"></div>
 <div class="container">
 
 <header>
@@ -232,7 +241,12 @@ footer a { color: var(--primary); }
 <section id="result" hidden></section>
 
 <footer>
-  <p>Source: <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202401689" target="_blank" rel="noopener">Regulation (EU) 2024/1689 (PDF)</a> · Not legal advice.</p>
+  <p>
+    Built by <a href="https://www.linkedin.com/in/jjcsantanna/" target="_blank" rel="noopener">J.J. Santanna on LinkedIn</a>
+    · Source: <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202401689" target="_blank" rel="noopener">Regulation (EU) 2024/1689 (PDF)</a>
+    · Not legal advice.
+  </p>
+  <p style="font-size:.8rem;margin-top:.5rem;">Styled in homage to <a href="https://cybersecurity.bureauveritas.com/" target="_blank" rel="noopener">Bureau Veritas Cybersecurity</a>. Not an official Bureau Veritas product.</p>
 </footer>
 
 </div>
