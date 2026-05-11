@@ -172,57 +172,57 @@ footer a { color: var(--primary); }
 
 <form id="classifier">
   <fieldset>
-    <legend>1. Does the system engage in any prohibited practice listed in Article 5?</legend>
+    <legend>1. Does the system do any of the following?</legend>
     <p class="hint">Pick the closest match, or "None of these".</p>
     <select id="q1">
       <option value="none">None of these</option>
-      <option value="5a">(a) Subliminal, manipulative or deceptive techniques causing significant harm</option>
-      <option value="5b">(b) Exploitation of vulnerabilities (age, disability, social or economic situation)</option>
-      <option value="5c">(c) Social scoring leading to detrimental treatment</option>
-      <option value="5d">(d) Predicting criminal offending solely from profiling or personality</option>
-      <option value="5e">(e) Untargeted scraping of facial images for face-recognition databases</option>
-      <option value="5f">(f) Emotion recognition in workplaces or education institutions</option>
-      <option value="5g">(g) Biometric categorisation inferring sensitive attributes (race, beliefs, etc.)</option>
-      <option value="5h">(h) Real-time remote biometric identification in public spaces by law enforcement</option>
+      <option value="5a">Uses hidden or manipulative techniques that push people into harmful decisions</option>
+      <option value="5b">Takes advantage of people because of their age, a disability, or their social or economic situation</option>
+      <option value="5c">Scores or ranks people based on social behaviour, leading to unfair treatment</option>
+      <option value="5d">Predicts whether someone will commit a crime, based only on profiling or personality</option>
+      <option value="5e">Builds or expands face-recognition databases by scraping the internet or CCTV</option>
+      <option value="5f">Detects the emotions of staff or students in workplaces or schools</option>
+      <option value="5g">Sorts people by biometrics to infer sensitive traits (race, beliefs, sexual orientation, etc.)</option>
+      <option value="5h">Uses live face recognition in public spaces for police or law-enforcement purposes</option>
     </select>
   </fieldset>
 
   <fieldset>
-    <legend>2. Is the system high-risk &mdash; Annex III, or a safety component under Article 6(1)?</legend>
-    <p class="hint">Annex III lists eight high-risk areas. Pick the closest, or "None".</p>
+    <legend>2. Is the system used in any of the following areas?</legend>
+    <p class="hint">Pick the closest match, or "None of these".</p>
     <select id="q2">
       <option value="none">None of these</option>
-      <option value="6_1">Safety component of a regulated product (Annex I) requiring third-party conformity assessment &mdash; Article 6(1)</option>
-      <option value="annex3_1">Annex III §1 &mdash; Biometrics (remote ID, categorisation, emotion recognition)</option>
-      <option value="annex3_2">Annex III §2 &mdash; Critical infrastructure (digital, traffic, water, gas, heating, electricity)</option>
-      <option value="annex3_3">Annex III §3 &mdash; Education and vocational training</option>
-      <option value="annex3_4">Annex III §4 &mdash; Employment, workers management, access to self-employment</option>
-      <option value="annex3_5">Annex III §5 &mdash; Access to essential private/public services and benefits</option>
-      <option value="annex3_6">Annex III §6 &mdash; Law enforcement</option>
-      <option value="annex3_7">Annex III §7 &mdash; Migration, asylum, border control</option>
-      <option value="annex3_8">Annex III §8 &mdash; Administration of justice and democratic processes</option>
+      <option value="6_1">Safety part of a regulated product (e.g. medical device, machinery, toy, vehicle, lift)</option>
+      <option value="annex3_1">Biometrics — identifying people, categorising them, or recognising emotions</option>
+      <option value="annex3_2">Critical infrastructure — water, gas, electricity, heating, road traffic, digital infrastructure</option>
+      <option value="annex3_3">Education and training — admission, grading, or exam monitoring</option>
+      <option value="annex3_4">Workplace — hiring, promotion, task allocation, or performance monitoring</option>
+      <option value="annex3_5">Essential services — public benefits, credit scoring, insurance, or emergency dispatch</option>
+      <option value="annex3_6">Police and law enforcement — risk assessment, evidence checks, or profiling</option>
+      <option value="annex3_7">Migration, asylum, or border control</option>
+      <option value="annex3_8">Justice and democracy — assisting court decisions, or influencing elections</option>
     </select>
   </fieldset>
 
   <fieldset>
-    <legend>3. Does the system trigger any transparency obligation under Article 50?</legend>
-    <p class="hint">Even if not high-risk, certain systems must inform users.</p>
+    <legend>3. Does the system interact with people or generate content?</legend>
+    <p class="hint">Some systems must clearly tell users they are dealing with AI, even if they are not high-risk.</p>
     <select id="q3">
       <option value="none">None of these</option>
-      <option value="50_1">Interacts directly with natural persons (e.g. chatbot, voice assistant)</option>
-      <option value="50_2">Generates synthetic audio, image, video or text content</option>
-      <option value="50_3">Performs emotion recognition or biometric categorisation</option>
-      <option value="50_4">Generates deep fakes, or AI-generated text on matters of public interest</option>
+      <option value="50_1">Talks directly with people (e.g. chatbot, voice assistant)</option>
+      <option value="50_2">Generates audio, images, video, or text</option>
+      <option value="50_3">Recognises emotions or categorises people by biometrics</option>
+      <option value="50_4">Creates deepfakes, or AI-written news or articles on matters of public interest</option>
     </select>
   </fieldset>
 
   <fieldset>
-    <legend>4. Is the underlying model a general-purpose AI (GPAI) model?</legend>
-    <p class="hint">GPAI obligations (Chapter V) apply on top of the tier above.</p>
+    <legend>4. Is the underlying model a general-purpose AI model?</legend>
+    <p class="hint">A general-purpose model is trained on broad data and can be adapted to many tasks &mdash; e.g. a foundation model like GPT, Claude, Llama or Gemini.</p>
     <select id="q4">
-      <option value="no">No / not applicable</option>
-      <option value="gpai">Yes &mdash; GPAI model</option>
-      <option value="systemic">Yes &mdash; GPAI model with systemic risk (Article 51)</option>
+      <option value="no">No, or not sure</option>
+      <option value="gpai">Yes &mdash; a general-purpose model</option>
+      <option value="systemic">Yes &mdash; a very large or highly capable model with potential systemic impact</option>
     </select>
   </fieldset>
 
@@ -315,7 +315,7 @@ const TIER_CONTENT = {
       "Article 50 applies from 2 August 2026."
     ],
     actions: [
-      'Add clear "you are interacting with AI" notices in the user flow.',
+      "Add clear \"you are interacting with AI\" notices in the user flow.",
       "Implement watermarking or C2PA-style provenance signals on generated media.",
       "Document the disclosures in the technical documentation and user interface.",
       "Track guidance and codes of practice from the AI Office on Article 50 implementation."
