@@ -64,10 +64,25 @@ header a:hover { color: var(--primary-dark); }
   padding: .85rem 1.1rem;
   border-radius: 6px;
   font-size: .85rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   color: var(--muted);
   box-shadow: var(--shadow-sm);
 }
+.disclaimer a { color: var(--primary); font-weight: 600; }
+.notice {
+  background: #fff9eb;
+  border: 1px solid #f3dba0;
+  border-left: 3px solid #b88f1f;
+  padding: .9rem 1.1rem;
+  border-radius: 6px;
+  font-size: .87rem;
+  margin-bottom: 2rem;
+  color: #4d3a09;
+  box-shadow: var(--shadow-sm);
+  line-height: 1.5;
+}
+.notice strong { color: #4d3a09; font-weight: 700; }
+.notice a { color: #6e4e0a; font-weight: 600; }
 
 form {
   background: var(--card);
@@ -259,7 +274,11 @@ footer a:hover { text-decoration: underline; }
 </header>
 
 <div class="disclaimer">
-  Preliminary indication only. Not legal advice. Borderline cases &mdash; and final regulatory decisions &mdash; require human review against the full text of the Act.
+  An attempt by <a href="https://www.linkedin.com/in/jjcsantanna/" target="_blank" rel="noopener">Jair Santanna</a> to simplify the understanding of the EU AI Act. Preliminary indication only, not legal advice. Borderline cases and final regulatory decisions need human review against the full text of the Act.
+</div>
+
+<div class="notice">
+  <strong>Deadline update.</strong> On 7 May 2026 the EU agreed to postpone the main AI Act compliance deadlines. Annex III high-risk obligations now apply from <strong>2 December 2027</strong> (previously 2 August 2026), and Annex I safety-component systems from <strong>2 August 2028</strong> (previously 2 August 2027). Article 50 transparency for AI-generated content applies from 2 December 2026. The Article 5 prohibitions, in force since February 2025, are unchanged. <a href="https://www.consilium.europa.eu/en/press/press-releases/2026/05/07/artificial-intelligence-council-and-parliament-agree-to-simplify-and-streamline-rules/" target="_blank" rel="noopener">Source: EU Council, 7 May 2026</a>.
 </div>
 
 <form id="classifier">
@@ -395,7 +414,7 @@ const TIER_CONTENT = {
       "Registration in the EU database for high-risk AI systems (Arts. 49 / 71).",
       "Post-market monitoring and serious-incident reporting (Arts. 72, 73).",
       "Penalties up to €15 000 000 or 3% of worldwide annual turnover (Article 99(4)).",
-      "Most obligations apply from 2 August 2026; Annex I safety-component systems from 2 August 2027."
+      "Most obligations now apply from 2 December 2027 (postponed from 2 August 2026); Annex I safety-component systems from 2 August 2028 (postponed from 2 August 2027). Per the EU's May 2026 Omnibus agreement."
     ],
     actions: [
       "Establish a quality management system (Art. 17).",
@@ -411,7 +430,7 @@ const TIER_CONTENT = {
       "The system itself is not high-risk, but Article 50 transparency obligations apply.",
       "Users must be informed they are interacting with an AI system, or that content is AI-generated or manipulated, as relevant.",
       "Synthetic outputs must be machine-readably marked (Art. 50(2)).",
-      "Article 50 applies from 2 August 2026."
+      "Article 50 transparency obligations now apply from 2 December 2026 (per the May 2026 Omnibus agreement)."
     ],
     actions: [
       "Add clear \"you are interacting with AI\" notices in the user flow.",
