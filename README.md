@@ -1,8 +1,4 @@
-# CLAUDE.md
-
-This file gives AI assistants (Claude Code, Cursor, Copilot, etc.) the
-context they need to work productively in this repository. Keep it short,
-factual, and current — out-of-date guidance is worse than none.
+# EU AI ACT simplified risk level analysis
 
 ## 1. Project purpose
 
@@ -27,7 +23,7 @@ provisions; no machine-learning inference is performed.
 
 ```
 .
-├── CLAUDE.md      — this file
+├── README.md      — this file
 └── index.html     — the entire app: HTML form, CSS, JS classifier + verbatim Act text
 ```
 
