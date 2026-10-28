@@ -24,23 +24,31 @@ provisions; no machine-learning inference is performed.
 ```
 .
 ├── README.md      — this file
-└── index.html     — the entire app: HTML form, CSS, JS classifier + verbatim Act text
+├── content.xlsx   — SOURCE OF TRUTH: all text, links, questions, options, tiers and rules
+├── template.html  — page layout, CSS and the generic classify/render JS (placeholders like {{footer}})
+├── build.py       — reads content.xlsx, validates it, fills template.html → index.html
+└── index.html     — GENERATED, committed so the site works without a build server
 ```
 
-Everything lives in `index.html`. There is no build step, package manager,
-or backend. Open the file in a browser, or serve the directory with any
-static-file server (e.g. `python3 -m http.server`).
+**Never edit `index.html` by hand** — edit `content.xlsx` (content) or
+`template.html` (layout/behaviour) and run `python3 build.py`.
 
-Key chunks inside `index.html`:
+Sheets in `content.xlsx` (its own **README** sheet explains them for editors):
 
-- `ARTICLE_5_TEXT`  — verbatim quotes of Article 5(1)(a)–(h) prohibitions.
-- `ANNEX_III_TEXT`  — Article 6(1) safety-component clause + the eight
-  Annex III high-risk categories.
-- `ARTICLE_50_TEXT` — Article 50(1)–(4) transparency obligations.
-- `GPAI_TEXT`       — Articles 53(1) and 55(1) GPAI obligations.
-- `TIER_CONTENT`    — the **What now?** copy (implications + actions) per tier.
-- `classify(q1, q2, q3, q4)` — pure function returning `{ tier, reasons, gpaiNote }`.
-- `render(result)`  — pure function that produces the result HTML.
+- `page`         — header, disclaimer, deadline notice, labels, call-to-action, footer.
+- `links`        — every URL, referenced from text as `[label](link_id)`.
+- `questions`    — the questions, in display order.
+- `options`      — answer options per question: `effect` (a tier_id, `addon`, or
+  empty), `provision`, `verbatim` Act text, `note` (add-ons), `enabled`.
+- `tiers`        — risk tiers, most → least severe; the last is the default result
+  and carries the fallback provision/verbatim.
+- `tier_details` — the **What now?** bullets (`implications` / `actions`) per tier.
+
+Classification rule (`classify(answers)` in `template.html`): the result is the
+most severe tier among the selected options' effects; every selected option of
+that tier is quoted under **Why?**; `addon` options (GPAI) are appended below.
+Text cells support `**bold**`, `*italic*`, `[label](link_id or https://…)`;
+`verbatim` cells are shown as plain text.
 
 `classify` and `render` are deliberately pure so they can be unit-tested
 without a DOM.
@@ -49,12 +57,14 @@ without a DOM.
 
 | Step | Command | Notes |
 |------|---------|-------|
+| Build | `python3 build.py` | after any change to `content.xlsx` or `template.html`; standard library only, exits 1 with sheet/row errors |
 | Run locally | `python3 -m http.server 8000` then open `http://localhost:8000/` | or just `open index.html` |
+| Deployed | https://jjsantanna.duckdns.org/eu-ai-act-risk-classifier/ | nginx container `eu-ai-act-risk-classifier` serves this folder read-only (`~/apps/docker-compose.yml`); only `index.html` is public, so rebuilding is enough to publish |
 | Smoke-test classifier | `node test.js` (not yet present) | extract `<script>` block; call `classify`/`render` |
 | Lint | _none_ | vanilla HTML/CSS/JS, no toolchain |
 | Format | _none_ | match the existing 2-space indent and double-quoted JS strings |
 
-There is no test suite, package manager, CI, or formatter today. If
+There is no test suite, package manager, CI, or formatter today; the only build step is `build.py`. If
 adding any of those, document the commands here in the same commit.
 
 ## 4. Branching, commits, and pushes
@@ -74,16 +84,17 @@ adding any of those, document the commands here in the same commit.
 
 ## 5. Editing rules specific to this project
 
-- **Verbatim text is verbatim.** When updating a quote in `ARTICLE_5_TEXT`,
-  `ANNEX_III_TEXT`, `ARTICLE_50_TEXT` or `GPAI_TEXT`, copy from
+- **Verbatim text is verbatim.** When updating a `verbatim` cell in
+  `content.xlsx` (sheets `options` and `tiers`), copy from
   [Regulation (EU) 2024/1689](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202401689)
   exactly. Don't paraphrase, summarise, or "clean up" the legalese — the
   point of the **Why?** section is that the user can audit the citation.
   If a quote is shortened with `...`, keep the ellipsis explicit.
 - **Cite by article and annex number** (e.g. "Article 6(2)", "Annex III §1(a)") —
   not by paraphrase.
-- **Keep the disclaimer.** The yellow notice that says this tool is not
-  legal advice is not decorative; do not remove it without instruction.
+- **Keep the disclaimer.** The `disclaimer` row in the `page` sheet (not legal
+  advice) is not decorative; do not remove it without instruction. `build.py`
+  refuses to build without it.
 - **Don't silently decide borderline cases.** If a dropdown option is
   ambiguous, prefer adding a clarifying sub-question over baking an
   assumption into the classifier.
@@ -107,9 +118,15 @@ Reference vocabulary so assistants use the correct terms:
 - **GPAI**: Chapter V — Articles 53 (general) and 55 (systemic-risk models).
 - **Penalties**: Article 99 — up to €35M or 7% turnover for prohibited
   practices, €15M or 3% for most other infringements.
-- **Application dates**: Article 113 — prohibitions from 2 Feb 2025;
-  Article 50 transparency and most high-risk obligations from 2 Aug 2026;
-  Annex I safety-component systems from 2 Aug 2027.
+- **Application dates** (Article 113, as amended by Regulation (EU) 2026/1744,
+  the "Digital Omnibus on AI", in force since July 2026):
+  - prohibitions (Article 5) from 2 Feb 2025; the two prohibitions added by the
+    Omnibus (non-consensual intimate imagery, child sexual abuse material) from
+    2 Dec 2026;
+  - Article 50 transparency from 2 Aug 2026 (not postponed); systems placed on
+    the market before that date have until 2 Dec 2026 for Article 50(2) marking;
+  - Annex III high-risk obligations from 2 Dec 2027 (was 2 Aug 2026);
+  - Annex I safety-component systems from 2 Aug 2028 (was 2 Aug 2027).
 
 ## 7. Conventions for changes
 
